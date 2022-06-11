@@ -18,7 +18,6 @@ namespace RPG.Control
             if (health.IsDead()) return;
             if (InteractWithCombat()) return;
             if (InteractWithMovement()) return;
-            print("Nothing to do");
         }
 
         private bool InteractWithCombat()
@@ -34,7 +33,7 @@ namespace RPG.Control
                     continue;
                 }
 
-                if (Input.GetMouseButtonDown(0))
+                if (Input.GetMouseButton(0))
                 { 
                     GetComponent<Fighter>().Attack(target.gameObject);
                 }
