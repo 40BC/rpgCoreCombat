@@ -2,17 +2,20 @@ using UnityEngine;
 using RPG.Combat;
 using RPG.Core;
 using RPG.Movement;
+using System;
 
 namespace RPG.Control
 {
     public class AIController : MonoBehaviour 
     {
         [SerializeField] float chaseDistance = 5f;
+        [SerializeField] float suspicionTime = 5f;
         Fighter fighter;
         Mover mover;
         GameObject player;
         Health health;
         Vector3 guardPosition;
+        float timeSinceLastSawPlayer = Mathf.Infinity;
 
         private void Start() {
             fighter = GetComponent<Fighter>();
@@ -29,12 +32,35 @@ namespace RPG.Control
             if (health.IsDead()) return;
 
             if (IsPlayerInRange()) {
-                AttackPlayer();
-            } else {
-                GetComponent<Mover>().StartMoveAction(guardPosition);
+                timeSinceLastSawPlayer = 0;
+                AttackBehaviour();
+            } 
+            else if (!IsPlayerInRange() || !fighter.CanAttack(player.gameObject))
+            {
+                SuspicionBehaviour();
+            }
+            else
+            {
+                GuardBehaviour();
+            }
+
+            timeSinceLastSawPlayer += Time.deltaTime;
+        }
+
+        private void GuardBehaviour()
+        {
+            mover.StartMoveAction(guardPosition);
+        }
+
+        private void SuspicionBehaviour()
+        {
+            GetComponent<ActionScheduler>().CancelCurrentAction();
+            if (timeSinceLastSawPlayer > suspicionTime) {
+                GuardBehaviour();
             }
         }
-        private void AttackPlayer()
+
+        private void AttackBehaviour()
         {
             if (fighter.CanAttack(player.gameObject)) 
             {
