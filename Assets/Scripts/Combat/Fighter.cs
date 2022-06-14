@@ -10,7 +10,16 @@ namespace RPG.Combat
         [SerializeField] float weaponDamage = 5f;
         [SerializeField] float timeBetweenAttacks = 1f;
         Health target;
+        Mover mover;
+        Animator animator;
+        ActionScheduler actionScheduler;
         float timeSinceLastAttack = Mathf.Infinity;
+
+        private void Start() {
+            mover = GetComponent<Mover>();
+            animator = GetComponent<Animator>();
+            actionScheduler = GetComponent<ActionScheduler>();
+        }
 
         private void Update()
         {
@@ -18,18 +27,18 @@ namespace RPG.Combat
 
             if (target == null || target.IsDead()) return;
 
-            if (!GetIsInRange())
+            if (!IsInRange())
             {
-                GetComponent<Mover>().MoveTo(target.transform.position);
+                mover.MoveTo(target.transform.position);
             }
             else
             {
-                GetComponent<Mover>().Cancel();
+                mover.Cancel();
                 AttackBehavior();
             }
         }
 
-        private bool GetIsInRange()
+        private bool IsInRange()
         {
             return Vector3.Distance(transform.position, target.transform.position) < weaponRange;
         }
@@ -48,14 +57,14 @@ namespace RPG.Combat
 
         private void TriggerAttack()
         {
-            GetComponent<Animator>().ResetTrigger("stopAttack");
-            GetComponent<Animator>().SetTrigger("attack");
+            animator.ResetTrigger("stopAttack");
+            animator.SetTrigger("attack");
         }
 
         private void TriggerStopAttack()
         {
-            GetComponent<Animator>().ResetTrigger("attack");
-            GetComponent<Animator>().SetTrigger("stopAttack");
+            animator.ResetTrigger("attack");
+            animator.SetTrigger("stopAttack");
         }
 
         // Animation Event
@@ -74,7 +83,7 @@ namespace RPG.Combat
 
         public void Attack(GameObject combatTarget)
         {
-            GetComponent<ActionScheduler>().StartAction(this);
+            actionScheduler.StartAction(this);
             target = combatTarget.GetComponent<Health>();
         }
 
