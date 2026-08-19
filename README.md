@@ -1,2 +1,2 @@
 # rpgCoreCombat
-Udemy Course for RPG Core Combat
+Coursework for RPG Core Combat
